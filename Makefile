@@ -21,7 +21,7 @@ export VERSTRING	:=	$(VERSION_MAJOR).$(VERSION_MINOR)
 
 # These set the information text in the nds file
 GAME_ICON      := $(CURDIR)/icon.bmp
-GAME_TITLE     := TunaVids
+GAME_TITLE     := Tuna-viDS
 GAME_SUBTITLE1 := A Tuna-viDS v$(VERSTRING) Single
 GAME_SUBTITLE2 := Created by Chishm
 
@@ -41,7 +41,7 @@ checkarm9	:	arm9/$(TARGET).elf
 #---------------------------------------------------------------------------------
 $(TARGET).nds	: $(NITRO_FILES) arm7/$(TARGET).elf arm9/$(TARGET).elf
 	ndstool	-c $(TARGET).nds -7 arm7/$(TARGET).elf -9 arm9/$(TARGET).elf \
-	-g SHKE 01 "SHREK MOVIE" -u 00030000 -a 00000010 \
+	-g TNVE 01 "TUNAVIDMOVIE" -u 00030000 -a 00000010 \
 	-b $(GAME_ICON) "$(GAME_TITLE);$(GAME_SUBTITLE1);$(GAME_SUBTITLE2)" \
 	-d $(NITRO_FILES) \
 	$(_ADDFILES)
