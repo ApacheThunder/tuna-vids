@@ -1289,7 +1289,8 @@ repeat:
     goto repeat;
   }
 
-  dec->p_bmv.x = dec->p_bmv.y = dec->p_fmv.y = dec->p_fmv.y = 0;  /* init pred vector to 0 */
+  // dec->p_bmv.x = dec->p_bmv.y = dec->p_fmv.y = dec->p_fmv.y = 0;  /* init pred vector to 0 */
+  dec->p_bmv.x = dec->p_bmv.y = dec->p_fmv.y = 0;  /* init pred vector to 0 */
 
   /* packed_mode: special-N_VOP treament */
   if (dec->packed_mode && coding_type == N_VOP) {

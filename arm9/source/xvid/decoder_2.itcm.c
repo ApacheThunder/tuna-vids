@@ -229,10 +229,10 @@ decoder_mb_decode(DECODER * dec,
       int direction,
       const int quant,
       const uint16_t *matrix);
-  typedef void (*add_residual_function_t)(
+  /*typedef void (*add_residual_function_t)(
       uint8_t *predicted_block,
       const int16_t *residual,
-      int stride);
+      int stride);*/
 
   const get_inter_block_function_t get_inter_block = (dec->quant_type == 0)
     ? (get_inter_block_function_t)get_inter_block_h263

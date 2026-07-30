@@ -603,30 +603,30 @@ BitstreamReadHeaders(Bitstream * bs,
 
 				if (dec->sprite_enable == SPRITE_STATIC || dec->sprite_enable == SPRITE_GMC)
 				{
-					int low_latency_sprite_enable;
+					// int low_latency_sprite_enable;
 
 					if (dec->sprite_enable != SPRITE_GMC)
 					{
-						int sprite_width;
-						int sprite_height;
-						int sprite_left_coord;
-						int sprite_top_coord;
-						sprite_width = BitstreamGetBits(bs, 13);		/* sprite_width */
+						// int sprite_width;
+						// int sprite_height;
+						// int sprite_left_coord;
+						// int sprite_top_coord;
+						// sprite_width = BitstreamGetBits(bs, 13);		/* sprite_width */
 						READ_MARKER();
-						sprite_height = BitstreamGetBits(bs, 13);	/* sprite_height */
+						// sprite_height = BitstreamGetBits(bs, 13);	/* sprite_height */
 						READ_MARKER();
-						sprite_left_coord = BitstreamGetBits(bs, 13);	/* sprite_left_coordinate */
+						// sprite_left_coord = BitstreamGetBits(bs, 13);	/* sprite_left_coordinate */
 						READ_MARKER();
-						sprite_top_coord = BitstreamGetBits(bs, 13);	/* sprite_top_coordinate */
+						// sprite_top_coord = BitstreamGetBits(bs, 13);	/* sprite_top_coordinate */
 						READ_MARKER();
 					}
 					dec->sprite_warping_points = BitstreamGetBits(bs, 6);		/* no_of_sprite_warping_points */
 					dec->sprite_warping_accuracy = BitstreamGetBits(bs, 2);		/* sprite_warping_accuracy */
 					dec->sprite_brightness_change = BitstreamGetBits(bs, 1);		/* brightness_change */
-					if (dec->sprite_enable != SPRITE_GMC)
+					/*if (dec->sprite_enable != SPRITE_GMC)
 					{
-						low_latency_sprite_enable = BitstreamGetBits(bs, 1);		/* low_latency_sprite_enable */
-					}
+						low_latency_sprite_enable = BitstreamGetBits(bs, 1);		// low_latency_sprite_enable
+					}*/
 				}
 
 				if (vol_ver_id != 1 &&
@@ -858,8 +858,9 @@ BitstreamReadHeaders(Bitstream * bs,
 				dec->shape == VIDOBJLAY_SHAPE_RECTANGULAR &&
 				(coding_type == P_VOP || coding_type == I_VOP)) {
 
-				if (BitstreamGetBit(bs));
+				if (BitstreamGetBit(bs)) {
 					DPRINTF(XVID_DEBUG_ERROR, "RRV not supported (anymore)\n");
+				}
 			}
 
 			if (dec->shape != VIDOBJLAY_SHAPE_RECTANGULAR) {

@@ -245,7 +245,8 @@ int DequantChannel(int *sampleBuf, int *workBuf, int *nonZeroBound, FrameHeader 
 					ScaleFactorInfoSub *sfis, CriticalBandInfo *cbi)
 {
 	int i, j, w, cb;
-	int cbStartL, cbEndL, cbStartS, cbEndS;
+	// int cbStartL, cbEndL, cbStartS, cbEndS;
+	int cbEndL, cbStartS, cbEndS;
 	int nSamps, nonZero, sfactMultiplier, gbMask;
 	int globalGain, gainI;
 	int cbMax[3];
@@ -253,7 +254,7 @@ int DequantChannel(int *sampleBuf, int *workBuf, int *nonZeroBound, FrameHeader 
 	
 	/* set default start/end points for short/long blocks - will update with non-zero cb info */
 	if (sis->blockType == 2) {
-		cbStartL = 0;
+		// cbStartL = 0;
 		if (sis->mixedBlock) { 
 			cbEndL = (fh->ver == MPEG1 ? 8 : 6); 
 			cbStartS = 3; 
@@ -264,7 +265,7 @@ int DequantChannel(int *sampleBuf, int *workBuf, int *nonZeroBound, FrameHeader 
 		cbEndS = 13;
 	} else {
 		/* long block */
-		cbStartL = 0;
+		// cbStartL = 0;
 		cbEndL =   22;
 		cbStartS = 13;
 		cbEndS =   13;

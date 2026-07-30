@@ -163,12 +163,12 @@ detect_cpu_flags(void)
 static
 int xvid_gbl_init(xvid_gbl_init_t * init)
 {
-	unsigned int cpu_flags;
+	// unsigned int cpu_flags;
 
 	if (XVID_VERSION_MAJOR(init->version) != 1) /* v1.x.x */
 		return XVID_ERR_VERSION;
 
-	cpu_flags = (init->cpu_flags & XVID_CPU_FORCE) ? init->cpu_flags : detect_cpu_flags();
+	// cpu_flags = (init->cpu_flags & XVID_CPU_FORCE) ? init->cpu_flags : detect_cpu_flags();
 
 	/* Initialize the function pointers */
 	idct_int32_init();
@@ -299,7 +299,7 @@ xvid_gbl_convert(xvid_gbl_convert_t* convert)
 {
 	int width;
 	int height;
-	int width2;
+	// int width2;
 	int height2;
 	IMAGE img;
 
@@ -311,7 +311,7 @@ xvid_gbl_convert(xvid_gbl_convert_t* convert)
 #endif
 	width = convert->width;
 	height = convert->height;
-	width2 = convert->width/2;
+	// width2 = convert->width/2;
 	height2 = convert->height/2;
 
 	switch (convert->input.csp & ~XVID_CSP_VFLIP)

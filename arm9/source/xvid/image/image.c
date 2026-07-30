@@ -386,7 +386,7 @@ image_chroma_optimize(IMAGE * img, int width, int height, int edged_width)
   and two unoptimized/plain-c areas (pixel width divisible by 2)
 */
 
-static void
+/*static void
 safe_packed_conv(uint8_t * x_ptr, int x_stride,
 				 uint8_t * y_ptr, uint8_t * u_ptr, uint8_t * v_ptr,
 				 int y_stride, int uv_stride,
@@ -416,7 +416,7 @@ safe_packed_conv(uint8_t * x_ptr, int x_stride,
 			y_ptr + width_opt, u_ptr + width_opt/2, v_ptr + width_opt/2,
 			y_stride, uv_stride, width_c, height, vflip);
 	}
-}
+}*/
 
 extern void yv12_to_rgb555_asm (uint8_t* x_ptr, uint8_t* y_ptr, uint8_t* u_ptr, uint8_t* v_ptr, int height);
 
@@ -668,7 +668,7 @@ image_dump_yuvpgm(const IMAGE * image,
 	if (f == NULL) {
 		return -1;
 	}
-	sprintf(hdr, "P5\n#xvid\n%i %i\n255\n", width, (3 * height) / 2);
+	sprintf(hdr, "P5\n#xvid\n%i %i\n255\n", (int)width, (int)((3 * height) / 2));
 	fwrite(hdr, strlen(hdr), 1, f);
 
 	bmp1 = image->y;

@@ -26,16 +26,60 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <nds/arm9/dldi.h>
+#include <stdio.h>
+
 #include "controls.h"
 #include "ipc9.h"
 #include "player.h"
 #include "version.h"
 #include "video.h"
 
-const char* clutTxtPath = "/_nds/colorLut/currentSetting.txt";
+
+const char* clutTxtPath = "fat:/_nds/colorLut/currentSetting.txt";
 u16* colorTable = NULL;
 
-const char *DEFAULTFILE = "/tuna-vids.avi";
+// const char *DEFAULTFILE = "/tuna-vids.avi";
+const char *DEFAULTFILE = "fat:/tuna-vids.avi";
+const char *DEFAULTFILEDSI = "fat:/tuna-vids_dsi.avi";
+
+static bool fatInitSuccess = false;
+
+
+const DISC_INTERFACE *dldiGet(void) {
+	if(io_dldi_data->ioInterface.features & FEATURE_SLOT_GBA)sysSetCartOwner(BUS_OWNER_ARM9);
+	if(io_dldi_data->ioInterface.features & FEATURE_SLOT_NDS)sysSetCardOwner(BUS_OWNER_ARM9);
+	return &io_dldi_data->ioInterface;
+}
+
+void DisplayConsole() {
+	iprintf("\n");
+	iprintf("     Loading please wait...     \n");
+	iprintf("\n");
+    iprintf(" Tuna-viDS v" VERSION_STRING "\n");
+    iprintf("\n");
+    iprintf(" AVI + Xvid + MP3 player by\n");
+    iprintf(" Michael Chisholm (Chishm)\n");
+    iprintf("\n");
+    iprintf(" See documentation for a \n");
+    iprintf(" full list of credits.\n");	
+}
+
+int exitProgram(void) {
+	while(1) {
+		swiWaitForVBlank();
+		scanKeys();
+		if (!keysHeld())break;
+	}
+	while (1) {
+		swiWaitForVBlank();
+		scanKeys();
+		if (keysDown() != 0)break;
+	}
+	systemShutDown();
+	return -1;
+}
+
 
 int main(int argc, const char* argv[])
 {
@@ -50,22 +94,24 @@ int main(int argc, const char* argv[])
 
     consoleSetup();
 
-    iprintf("\n");
-    iprintf("Tuna-viDS v" VERSION_STRING "\n");
-    iprintf("\n");
-    iprintf("AVI + Xvid + MP3 player by\n");
-    iprintf("Michael Chisholm (Chishm)\n");
-    iprintf("\n");
-    iprintf("See documentation for a \n");
-    iprintf("full list of credits.\n");
-
     powerOn(POWER_ALL_2D);
     lcdMainOnTop();
 
+	sysSetCardOwner(BUS_OWNER_ARM9);
+
     // File set up
-    if (!fatInitDefault()) {
-        iprintf("Failed to init FAT\n");
-        return -1;
+	if (isDSiMode()) {
+		fatInitSuccess = fatMountSimple("fat", dldiGet());
+	} else {
+		fatInitSuccess = fatInitDefault();
+	}
+	
+	DisplayConsole();
+	
+	if (!fatInitSuccess) {
+		consoleClear();
+        iprintf(" Failed to init FAT\n");
+        return exitProgram();
     }
 
     // Video set up
@@ -117,35 +163,52 @@ int main(int argc, const char* argv[])
 
     // Communication with ARM7
     if (!ipcInit()) {
-        iprintf("Failed to init IPC\n");
-        return -1;
+		consoleClear();
+		iprintf(" Failed to init IPC\n");
+        return exitProgram();
     }
 
     // Get file name
     if (argc >= 2) {
         aviFileName = argv[1];
     } else {
-        aviFileName = DEFAULTFILE;
+        if (isDSiMode()) {
+			aviFileName = DEFAULTFILEDSI;
+		} else {
+			aviFileName = DEFAULTFILE;
+		}
     }
 
     // Load Video
     aviFile = fopen(aviFileName, "rb");
+	
+	// Use alternate higher quality video if on DSi. If it's not found default to the normal filepath.
+	if (isDSiMode() && !aviFile) {
+		aviFileName = DEFAULTFILE;
+		aviFile = fopen(aviFileName, "rb");
+	}
+	
     if (!aviFile) {
-        iprintf("Error opening AVI file\n%s\n%s\n", aviFileName, strerror(errno));
-        return -1;
+        consoleClear();
+		iprintf(" Error opening AVI file\n %s\n %s\n", aviFileName, strerror(errno));
+        return exitProgram();
     }
 
     // xvid play
     play_movie(aviFile);
 
     if (fclose(aviFile) != 0) {
-        iprintf("Error closing AVI file\n%s\n", strerror(errno));
-        return -1;
+        consoleClear();
+		iprintf(" Error closing AVI file\n %s\n", strerror(errno));
+        return exitProgram();
     }
+	
+	consoleClear();
 
-    iprintf("Exiting\n");
+    iprintf(" Exiting...\n");
 
     ipcSend_Exit();
 
     return 0;
 }
+
