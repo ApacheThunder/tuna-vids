@@ -5,24 +5,24 @@ ifeq ($(strip $(DEVKITARM)),)
 $(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
 endif
 
-export TARGET	:=	$(shell basename $(CURDIR))
+export TARGET	:=	TunaVids
 export TOPDIR	:=	$(CURDIR)
 
 include $(DEVKITARM)/ds_rules
 
 # specify a directory which contains the nitro filesystem
 # this is relative to the Makefile
-NITRO_FILES	:=
+NITRO_FILES	:= NitroFS
 
 # Version information
 export VERSION_MAJOR	:= 1
-export VERSION_MINOR	:= 3
+export VERSION_MINOR	:= 4
 export VERSTRING	:=	$(VERSION_MAJOR).$(VERSION_MINOR)
 
 # These set the information text in the nds file
 GAME_ICON      := $(CURDIR)/icon.bmp
-GAME_TITLE     := Tuna-viDS v$(VERSTRING)
-GAME_SUBTITLE1 := AVI (Xvid+MP3) player
+GAME_TITLE     := TunaVids
+GAME_SUBTITLE1 := A Tuna-viDS v$(VERSTRING) Single
 GAME_SUBTITLE2 := Created by Chishm
 
 .PHONY: $(TARGET).arm7 $(TARGET).arm9
@@ -41,8 +41,11 @@ checkarm9	:	arm9/$(TARGET).elf
 #---------------------------------------------------------------------------------
 $(TARGET).nds	: $(NITRO_FILES) arm7/$(TARGET).elf arm9/$(TARGET).elf
 	ndstool	-c $(TARGET).nds -7 arm7/$(TARGET).elf -9 arm9/$(TARGET).elf \
+	-g SHKE 01 "SHREK MOVIE" -u 00030000 -a 00000010 \
 	-b $(GAME_ICON) "$(GAME_TITLE);$(GAME_SUBTITLE1);$(GAME_SUBTITLE2)" \
+	-d $(NITRO_FILES) \
 	$(_ADDFILES)
+	dlditool ntro.dldi $(TARGET).nds
 
 #---------------------------------------------------------------------------------
 arm9/source/version.h	: Makefile
