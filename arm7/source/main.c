@@ -70,21 +70,6 @@ static void initVramHeap(void)
     fake_heap_end = VRAM_END;
 }
 
-static void powerOnSound(void)
-{
-    u16 oldIME = enterCriticalSection();
-
-    REG_SOUNDCNT |= SOUND_ENABLE;
-
-    int oldPowerReg = readPowerManagement(PM_CONTROL_REG);
-    writePowerManagement(PM_CONTROL_REG,
-        (oldPowerReg & ~PM_SOUND_MUTE) | PM_SOUND_AMP);
-
-    powerOn(POWER_SOUND);
-
-    leaveCriticalSection(oldIME);
-}
-
 void toggleBottomLight(void)
 {
     u16 oldIME = enterCriticalSection();
@@ -103,45 +88,43 @@ void exitMainLoop(void)
 
 int main(void)
 {
-    // clear sound registers
-    dmaFillWords(0, (void*) 0x04000400, 0x100);
+    // Initialize sound hardware
+    enableSound();
 
-    powerOnSound();
-
+    // Read user information from the firmware (name, birthday, etc)
     readUserSettings();
-    ledBlink(0);
 
-    irqInit();
-    // Start the RTC tracking IRQ
-    // initClockIRQ();
-	initClockIRQTimer(3);
-    // Setup FIFO on ARM7. This will sync with the ARM9.
-    fifoInit();
-    // Prepare for touch-screen input
+    // Stop LED blinking
+    ledBlink(LED_ALWAYS_ON);
+
+    // Using the calibration values read from the firmware with
+    // readUserSettings(), calculate some internal values to convert raw
+    // coordinates into screen coordinates.
     touchInit();
 
-    initVramHeap();
+    irqInit();
+    fifoInit();
 
-    // Not using MaxMOD
-    //mmInstall(FIFO_MAXMOD);
+    installSystemFIFO(); // Sleep mode, storage, firmware...
 
-    // SetYtrigger(80);
-
-    // Not using Wifi or normal libnds sound
-    //installWifiFIFO();
-    //installSoundFIFO();
-
-    installSystemFIFO();
-
-    irqSet(IRQ_VBLANK, VblankHandler);
-
-    // IRQ_NETWORK is used by the RTC, other IRQs used above
-    irqEnable(IRQ_VBLANK | IRQ_VCOUNT | IRQ_NETWORK);
-
+    // This sets a callback that is called when the power button in a DSi
+    // console is pressed. It has no effect in a DS.
     setPowerButtonCB(powerButtonCB);
+
+    // Read current date from the RTC and setup an interrupt to update the time
+    // regularly. The interrupt simply adds one second every time, it doesn't
+    // read the date. Reading the RTC is very slow, so it's a bad idea to do it
+    // frequently.
+    initClockIRQTimer(3);
+
+    // Now that the FIFO is setup we can start sending input data to the ARM9.
+	irqSet(IRQ_VBLANK, VblankHandler);
+	irqEnable(IRQ_VBLANK);
 
     // Communication with ARM9
     ipcInit();
+
+    initVramHeap();
 
     // Provide MP3 playback
     SoundInit();

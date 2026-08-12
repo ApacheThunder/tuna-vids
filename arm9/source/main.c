@@ -187,6 +187,9 @@ int main(int argc, const char* argv[])
         return exitProgram();
     }
 
+
+	fatInitLookupCacheFile(aviFile, 4096);
+
     // xvid play
     play_movie(aviFile);
 

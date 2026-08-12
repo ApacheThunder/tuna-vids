@@ -342,8 +342,8 @@ int play_movie(FILE* aviFile)
         mp3PlayerLoop();
 
         touchPosition penPos;
-        touchRead(&penPos);
         scanKeys();
+        touchRead(&penPos);
         uint32 keys = keysDown();
 
         if ((keys & KEY_LEFT) || hitCheck(&penPos, &controlFpsMinus, keys)) {
