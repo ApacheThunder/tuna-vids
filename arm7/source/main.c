@@ -44,13 +44,9 @@ volatile bool exitflag = false;
 
 static void VblankHandler(void)
 {
+	inputGetAndSend();
     // Not using Wifi
     //Wifi_Update();
-}
-
-static void VcountHandler(void)
-{
-    inputGetAndSend();
 }
 
 static void powerButtonCB(void)
@@ -129,7 +125,7 @@ int main(void)
     // Not using MaxMOD
     //mmInstall(FIFO_MAXMOD);
 
-    SetYtrigger(80);
+    // SetYtrigger(80);
 
     // Not using Wifi or normal libnds sound
     //installWifiFIFO();
@@ -137,7 +133,6 @@ int main(void)
 
     installSystemFIFO();
 
-    irqSet(IRQ_VCOUNT, VcountHandler);
     irqSet(IRQ_VBLANK, VblankHandler);
 
     // IRQ_NETWORK is used by the RTC, other IRQs used above
