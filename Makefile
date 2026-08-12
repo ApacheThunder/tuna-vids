@@ -13,7 +13,7 @@ NAME		?= TunaVids
 GAME_TITLE	?= Tuna-viDS
 GAME_SUBTITLE	?= Video Cart Edition
 GAME_AUTHOR	?= Built with BlocksDS
-GAME_ICON	?= icon.bmp
+GAME_ICON	?= icon.png
 
 # Source code paths
 # -----------------
