@@ -34,7 +34,7 @@
 #include "sound7.h"
 #include "ipc7.h"
 
-#define REG_VRAMSTAT (*(vu8*)0x04000240)
+// #define REG_VRAMSTAT (*(vu8*)0x04000240)
 #define VRAM_START ((char*)0x06000000)
 #define VRAM_END ((char*)0x06020000)
 
@@ -117,7 +117,8 @@ int main(void)
 
     irqInit();
     // Start the RTC tracking IRQ
-    initClockIRQ();
+    // initClockIRQ();
+	initClockIRQTimer(3);
     // Setup FIFO on ARM7. This will sync with the ARM9.
     fifoInit();
     // Prepare for touch-screen input
@@ -167,3 +168,4 @@ int main(void)
 
     return 0;
 }
+

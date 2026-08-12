@@ -19,6 +19,7 @@
 ---------------------------------------------------------------------------------*/
 #include <errno.h>
 #include <fat.h>
+#include <filesystem.h>
 #include <malloc.h>
 #include <nds.h>
 #include <nds/arm9/console.h>
@@ -26,7 +27,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <nds/arm9/dldi.h>
 #include <stdio.h>
 
 #include "controls.h"
@@ -36,33 +36,26 @@
 #include "video.h"
 
 
-const char* clutTxtPath = "fat:/_nds/colorLut/currentSetting.txt";
+const char* clutTxtPath = "/_nds/colorLut/currentSetting.txt";
 u16* colorTable = NULL;
 
-// const char *DEFAULTFILE = "/tuna-vids.avi";
-const char *DEFAULTFILE = "fat:/tuna-vids.avi";
-const char *DEFAULTFILEDSI = "fat:/tuna-vids_dsi.avi";
+const char *DEFAULTFILE = "/tuna-vids.avi";
+const char *DEFAULTFILEDSI = "/tuna-vids_dsi.avi";
 
 static bool fatInitSuccess = false;
-
-
-const DISC_INTERFACE *dldiGet(void) {
-	if(io_dldi_data->ioInterface.features & FEATURE_SLOT_GBA)sysSetCartOwner(BUS_OWNER_ARM9);
-	if(io_dldi_data->ioInterface.features & FEATURE_SLOT_NDS)sysSetCardOwner(BUS_OWNER_ARM9);
-	return &io_dldi_data->ioInterface;
-}
+const bool isNitroFSBuild = true;
 
 void DisplayConsole() {
-	iprintf("\n");
-	iprintf("     Loading please wait...     \n");
-	iprintf("\n");
-    iprintf(" Tuna-viDS v" VERSION_STRING "\n");
-    iprintf("\n");
-    iprintf(" AVI + Xvid + MP3 player by\n");
-    iprintf(" Michael Chisholm (Chishm)\n");
-    iprintf("\n");
-    iprintf(" See documentation for a \n");
-    iprintf(" full list of credits.\n");	
+	printf("\n");
+	printf("     Loading please wait...     \n");
+	printf("\n");
+    printf(" Tuna-viDS v" VERSION_STRING "\n");
+    printf("\n");
+    printf(" AVI + Xvid + MP3 player by\n");
+    printf(" Michael Chisholm (Chishm)\n");
+    printf("\n");
+    printf(" See documentation for a \n");
+    printf(" full list of credits.\n");	
 }
 
 int exitProgram(void) {
@@ -76,8 +69,8 @@ int exitProgram(void) {
 		scanKeys();
 		if (keysDown() != 0)break;
 	}
-	systemShutDown();
-	return -1;
+	ipcSend_Exit();
+	return 0;
 }
 
 
@@ -97,11 +90,11 @@ int main(int argc, const char* argv[])
     powerOn(POWER_ALL_2D);
     lcdMainOnTop();
 
-	sysSetCardOwner(BUS_OWNER_ARM9);
+	// sysSetCardOwner(BUS_OWNER_ARM9);
 
     // File set up
-	if (isDSiMode()) {
-		fatInitSuccess = fatMountSimple("fat", dldiGet());
+	if (isNitroFSBuild) {
+		fatInitSuccess = nitroFSInit(0);
 	} else {
 		fatInitSuccess = fatInitDefault();
 	}
@@ -110,7 +103,7 @@ int main(int argc, const char* argv[])
 	
 	if (!fatInitSuccess) {
 		consoleClear();
-        iprintf(" Failed to init FAT\n");
+        printf(" Failed to init FAT\n");
         return exitProgram();
     }
 
@@ -164,7 +157,7 @@ int main(int argc, const char* argv[])
     // Communication with ARM7
     if (!ipcInit()) {
 		consoleClear();
-		iprintf(" Failed to init IPC\n");
+		printf(" Failed to init IPC\n");
         return exitProgram();
     }
 
@@ -190,7 +183,7 @@ int main(int argc, const char* argv[])
 	
     if (!aviFile) {
         consoleClear();
-		iprintf(" Error opening AVI file\n %s\n %s\n", aviFileName, strerror(errno));
+		printf(" Error opening AVI file\n %s\n %s\n", aviFileName, strerror(errno));
         return exitProgram();
     }
 
@@ -199,16 +192,16 @@ int main(int argc, const char* argv[])
 
     if (fclose(aviFile) != 0) {
         consoleClear();
-		iprintf(" Error closing AVI file\n %s\n", strerror(errno));
+		printf(" Error closing AVI file\n %s\n", strerror(errno));
         return exitProgram();
     }
 	
 	consoleClear();
 
-    iprintf(" Exiting...\n");
-
-    ipcSend_Exit();
-
+    printf(" Exiting...\n");
+    
+	ipcSend_Exit();
+	
     return 0;
 }
 

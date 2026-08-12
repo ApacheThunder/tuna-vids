@@ -1,0 +1,1 @@
+-p -pu16 -pz! -g -gzl -gt -gB8 -gTFF00FF -m -mu16 -mz! -mRtf -mLf -fts -fh -o $@

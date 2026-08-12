@@ -347,7 +347,7 @@ void updateSyncDisplay(int delay)
 void displayError(u32 error, bool isArm9, bool halt)
 {
     consoleSetup();
-    iprintf("Error on ARM%c: 0x%08lx\n", isArm9 ? '9' : '7', error);
+    printf("Error on ARM%c: 0x%08lx\n", isArm9 ? '9' : '7', error);
 
     if (halt) {
         while (true) {

@@ -369,7 +369,7 @@ globalSAD(const WARPPOINTS *const wp,
 {
 	NEW_GMC_DATA gmc_data;
 	int iSAD, gmcSAD=0;
-	int num=0;
+	// int num=0;
 	unsigned int mx, my;
 
 	generate_GMCparameters(	3, 3, wp, pParam->width, pParam->height, &gmc_data);
@@ -396,7 +396,7 @@ globalSAD(const WARPPOINTS *const wp,
 
 		if (iSAD<0)
 			gmcSAD += iSAD;
-		num++;
+		// num++;
 	}
 	return gmcSAD;
 }

@@ -1,84 +1,88 @@
-#---------------------------------------------------------------------------------
-.SUFFIXES:
-#---------------------------------------------------------------------------------
-ifeq ($(strip $(DEVKITARM)),)
-$(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
+# SPDX-License-Identifier: CC0-1.0
+#
+# SPDX-FileContributor: Antonio Niño Díaz, 2023
+
+BLOCKSDS	?= /opt/blocksds/core
+BLOCKSDSEXT	?= /opt/blocksds/external
+
+# User config
+# ===========
+
+NAME		?= TunaVids
+
+GAME_TITLE	?= Tuna-viDS
+GAME_SUBTITLE	?= Video Cart Edition
+GAME_AUTHOR	?= Built with BlocksDS
+GAME_ICON	?= icon.bmp
+
+# Source code paths
+# -----------------
+
+NITROFSDIR	?= ./NitroFS
+
+# Tools
+# -----
+
+MAKE		:= make
+RM		:= rm -rf
+
+# Verbose flag
+# ------------
+
+ifeq ($(VERBOSE),1)
+V		:=
+else
+V		:= @
 endif
 
-export TARGET	:=	TunaVids
-export TOPDIR	:=	$(CURDIR)
+# Build artfacts
+# --------------
 
-include $(DEVKITARM)/ds_rules
+ROM		:= $(NAME).nds
 
-# specify a directory which contains the nitro filesystem
-# this is relative to the Makefile
-NITRO_FILES	:= NitroFS
+# Targets
+# -------
 
-# Version information
-export VERSION_MAJOR	:= 1
-export VERSION_MINOR	:= 4
-export VERSTRING	:=	$(VERSION_MAJOR).$(VERSION_MINOR)
+.PHONY: all clean arm9 arm7 dldipatch
 
-# These set the information text in the nds file
-GAME_ICON      := $(CURDIR)/icon.bmp
-GAME_TITLE     := Tuna-viDS
-GAME_SUBTITLE1 := A Tuna-viDS v$(VERSTRING) Single
-GAME_SUBTITLE2 := Created by Chishm
+all: $(ROM)
 
-.PHONY: $(TARGET).arm7 $(TARGET).arm9
-
-#---------------------------------------------------------------------------------
-# main targets
-#---------------------------------------------------------------------------------
-all: checkarm7 checkarm9 $(TARGET).nds
-
-#---------------------------------------------------------------------------------
-checkarm7	:	arm7/$(TARGET).elf
-
-#---------------------------------------------------------------------------------
-checkarm9	:	arm9/$(TARGET).elf
-
-#---------------------------------------------------------------------------------
-$(TARGET).nds	: $(NITRO_FILES) arm7/$(TARGET).elf arm9/$(TARGET).elf
-	ndstool	-c $(TARGET).nds -7 arm7/$(TARGET).elf -9 arm9/$(TARGET).elf \
-	-g TNVE 01 "TUNAVIDMOVIE" -u 00030000 -a 00000010 \
-	-b $(GAME_ICON) "$(GAME_TITLE);$(GAME_SUBTITLE1);$(GAME_SUBTITLE2)" \
-	-d $(NITRO_FILES) \
-	$(_ADDFILES)
-	dlditool ntro.dldi $(TARGET).nds
-
-#---------------------------------------------------------------------------------
-arm9/source/version.h	: Makefile
-	@echo "#ifndef VERSION_H_" > $@
-	@echo "#define VERSION_H_" >> $@
-	@echo >> $@
-	@echo '#define VERSION_STRING "'$(VERSION_MAJOR).$(VERSION_MINOR)'"' >> $@
-	@echo >> $@
-	@echo "#endif // VERSION_H_" >> $@
-
-#---------------------------------------------------------------------------------
-arm7/$(TARGET).elf:
-	$(MAKE) -C arm7
-
-#---------------------------------------------------------------------------------
-arm9/$(TARGET).elf	:	arm9/source/version.h
-	$(MAKE) -C arm9
-
-#---------------------------------------------------------------------------------
-dist-bin	: $(TARGET).nds README.md LICENSE
-	zip -X -9 $(TARGET)_v$(VERSTRING).zip $^
-
-dist-src	:
-	tar --exclude=*~ -cvjf $(TARGET)_src_v$(VERSTRING).tar.bz2 \
-	--transform 's,^,$(TARGET)/,' \
-	Makefile icon.bmp LICENSE README.md \
-	arm7/Makefile arm7/source \
-	arm9/Makefile arm9/source
-
-dist	:	dist-bin dist-src
-
-#---------------------------------------------------------------------------------
 clean:
-	$(MAKE) -C arm9 clean
-	$(MAKE) -C arm7 clean
-	rm -f $(TARGET).nds $(TARGET).arm7 $(TARGET).arm9
+	@echo "  CLEAN"
+	$(V)$(MAKE) -f Makefile.arm9 clean --no-print-directory
+	$(V)$(MAKE) -f Makefile.arm7 clean --no-print-directory
+	$(V)$(RM) $(ROM) build
+
+arm9:
+	$(V)$(MAKE) -f Makefile.arm9 --no-print-directory
+
+arm7:
+	$(V)$(MAKE) -f Makefile.arm7 --no-print-directory
+
+ifneq ($(strip $(NITROFSDIR)),)
+# Additional arguments for ndstool
+NDSTOOL_ARGS	:= -d $(NITROFSDIR)
+
+# Make the NDS ROM depend on the filesystem only if it is needed
+$(ROM): $(NITROFSDIR)
+endif
+
+# Combine the title strings
+ifeq ($(strip $(GAME_SUBTITLE)),)
+    GAME_FULL_TITLE := $(GAME_TITLE);$(GAME_AUTHOR)
+else
+    GAME_FULL_TITLE := $(GAME_TITLE);$(GAME_SUBTITLE);$(GAME_AUTHOR)
+endif
+
+$(ROM): arm9 arm7
+	@echo "  NDSTOOL $@"
+	$(V)$(BLOCKSDS)/tools/ndstool/ndstool -c $@ \
+		-7 build/arm7.elf -9 build/arm9.elf \
+		-b $(GAME_ICON) "$(GAME_FULL_TITLE)" \
+		-g TNVE 01 "TUNAVIDS" -u 00030000 -a 00000010 \
+		$(NDSTOOL_ARGS)
+
+dldipatch: $(ROM)
+	@echo "  DLDIPATCH $(ROM)"
+	$(V)$(BLOCKSDS)/tools/dldipatch/dldipatch patch \
+		$(BLOCKSDS)/sys/dldi_r4/r4tf.dldi $(ROM)

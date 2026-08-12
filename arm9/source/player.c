@@ -279,7 +279,7 @@ int play_movie(FILE* aviFile)
     vidBuf_StopVideo();
     if (!aviBufferInit(aviFile, &frameWidth, &frameHeight, &frameRate,
         &numFrames)) {
-        iprintf("Couldn't allocate file buffer\n");
+        printf("Couldn't allocate file buffer\n");
         goto free_all_memory;
     }
 
@@ -290,11 +290,11 @@ int play_movie(FILE* aviFile)
 	height = frameHeight;
 
     if (frameWidth != SCREEN_WIDTH) {
-        iprintf("Video is not 256px wide!\n");
+        printf("Video is not 256px wide!\n");
     }
 
     if (frameHeight > SCREEN_HEIGHT) {
-        iprintf("Video too tall!\n");
+        printf("Video too tall!\n");
     }
 
     /* Memory for encoded mp3 stream */
@@ -306,7 +306,7 @@ int play_movie(FILE* aviFile)
 
     status = dec_init(frameWidth, frameHeight);
     if (status) {
-        iprintf("Decore INIT problem, return value %d\n", status);
+        printf("Decore INIT problem, return value %d\n", status);
         goto release_all;
     }
 
@@ -316,7 +316,7 @@ int play_movie(FILE* aviFile)
 
     // Fill the buffers
     if (!cue_video()) {
-        iprintf("Not enough video data\n");
+        printf("Not enough video data\n");
         goto release_all;
     }
 
@@ -393,7 +393,7 @@ int play_movie(FILE* aviFile)
 
     // Restore console so we can print text again.
     consoleSetup();
-    iprintf("Video stopped\n");
+    printf("Video stopped\n");
 
     /*****************************************************************************
      *     Flush decoder buffers
@@ -415,13 +415,13 @@ int play_movie(FILE* aviFile)
     if (dec_handle) {
         status = dec_end();
         if (status) {
-            iprintf("decore RELEASE problem, return value %d\n", status);
+            printf("decore RELEASE problem, return value %d\n", status);
         }
     }
 
     free_all_memory: aviBufferFree();
 
-    iprintf("Finished playback\n");
+    printf("Finished playback\n");
 
     return 0;
 

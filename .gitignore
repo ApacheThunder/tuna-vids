@@ -1,4 +1,7 @@
 /arm7/build/
 /arm9/build/
+/build
+*.avi
 *.elf
 *.nds
+*.exe

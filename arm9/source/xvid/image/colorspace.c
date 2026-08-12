@@ -351,35 +351,35 @@ colorspace_init(void)
 		max_val = max_val > RGB_Y_tab[i] ? max_val : RGB_Y_tab[i];
 		min_val = min_val < RGB_Y_tab[i] ? min_val : RGB_Y_tab[i];
 	}
-	iprintf ("RGB_Y_tab: %d to %d\n", min_val, max_val);
+	printf ("RGB_Y_tab: %d to %d\n", min_val, max_val);
 
 	max_val = 0; min_val = 255;
 	for ( i = 0; i < 256; i++) {
 		max_val = max_val > B_U_tab[i] ? max_val : B_U_tab[i];
 		min_val = min_val < B_U_tab[i] ? min_val : B_U_tab[i];
 	}
-	iprintf ("B_U_tab: %d to %d\n", min_val, max_val);
+	printf ("B_U_tab: %d to %d\n", min_val, max_val);
 
 	max_val = 0; min_val = 255;
 	for ( i = 0; i < 256; i++) {
 		max_val = max_val > G_U_tab[i] ? max_val : G_U_tab[i];
 		min_val = min_val < G_U_tab[i] ? min_val : G_U_tab[i];
 	}
-	iprintf ("G_U_tab: %d to %d\n", min_val, max_val);
+	printf ("G_U_tab: %d to %d\n", min_val, max_val);
 
 	max_val = 0; min_val = 255;
 	for ( i = 0; i < 256; i++) {
 		max_val = max_val > G_V_tab[i] ? max_val : G_V_tab[i];
 		min_val = min_val < G_V_tab[i] ? min_val : G_V_tab[i];
 	}
-	iprintf ("G_V_tab: %d to %d\n", min_val, max_val);
+	printf ("G_V_tab: %d to %d\n", min_val, max_val);
 
 	max_val = 0; min_val = 255;
 	for ( i = 0; i < 256; i++) {
 		max_val = max_val > R_V_tab[i] ? max_val : R_V_tab[i];
 		min_val = min_val < R_V_tab[i] ? min_val : R_V_tab[i];
 	}
-	iprintf ("R_V_tab: %d to %d\n", min_val, max_val);
+	printf ("R_V_tab: %d to %d\n", min_val, max_val);
 //	while(1);
 }
 */
